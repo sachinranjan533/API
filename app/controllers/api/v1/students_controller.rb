@@ -1,6 +1,7 @@
 module Api
   module V1
     class StudentsController < Api::BaseController
+        deserializable_resource :student, only: %i[create update]
         before_action :set_student, only: [:show, :update, :destroy]
 
         # GET /students
@@ -20,9 +21,9 @@ module Api
         @student = Student.new(student_params)
 
         if @student.save
-            render json: @student, status: :created, location: @student
+            render jsonapi: @student
         else
-            render json: @student.errors, status: :unprocessable_entity
+            student
         end
         end
 
@@ -48,7 +49,13 @@ module Api
 
         # Only allow a list of trusted parameters through.
         def student_params
-            params.fetch(:student, {})
+            params.require(:student).permit(student_attributes)
+        end
+
+        def student_attributes
+            [
+                :name, :contact_no
+            ]
         end
     end
   end
